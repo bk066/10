@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Incident Response Simulation Tool</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <main class="container">
+      <header>
+        <h1>Cybersecurity Incident Response Simulation Tool</h1>
+        <p>Simulate attack scenarios, evaluate detection coverage, and rehearse automated response actions.</p>
+      </header>
+
+      <section class="panel">
+        <h2>Run Simulation</h2>
+        <form action="/simulate" method="post" class="controls">
+          <label>
+            Event Type
+            <select name="event_type">
+              {% for event_type in event_types %}
+              <option value="{{ event_type }}">{{ event_type }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>
+            Source IP (optional)
+            <input type="text" name="source_ip" placeholder="203.0.113.10" />
+          </label>
+          <div class="buttons">
+            <button type="submit">Simulate Incident</button>
+          </div>
+        </form>
+        <form action="/reset" method="post">
+          <button class="secondary" type="submit">Reset Simulation</button>
+        </form>
+      </section>
+
+      <section class="panel stats">
+        <h2>Resilience Dashboard</h2>
+        <ul>
+          <li><strong>Total events:</strong> {{ summary.total_events }}</li>
+          <li><strong>Detected events:</strong> {{ summary.detected_events }}</li>
+          <li><strong>Detection coverage:</strong> {{ summary.detection_coverage }}%</li>
+          <li><strong>High severity:</strong> {{ summary.severity_breakdown.high }}</li>
+        </ul>
+      </section>
+
+      <section class="panel">
+        <h2>Recent Incidents</h2>
+        {% if events %}
+        <table>
+          <thead>
+            <tr>
+              <th>Time (UTC)</th>
+              <th>Type</th>
+              <th>Source</th>
+              <th>Target</th>
+              <th>Severity</th>
+              <th>Detected</th>
+              <th>Packet Preview</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for event in events %}
+            <tr>
+              <td>{{ event.timestamp }}</td>
+              <td>{{ event.event_type }}</td>
+              <td>{{ event.source_ip }}</td>
+              <td>{{ event.target }}</td>
+              <td>{{ event.severity }}</td>
+              <td>{{ 'yes' if event.detected else 'no' }}</td>
+              <td>{{ event.packet_preview }}</td>
+              <td>{{ ', '.join(event.response_actions) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p>No incidents yet. Start by running a simulation.</p>
+        {% endif %}
+      </section>
+    </main>
+  </body>
+</html>
